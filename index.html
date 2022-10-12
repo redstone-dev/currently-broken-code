@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <title>Scratch API playground</title>
+</head>
+<body>
+    <h1>Scratch API playground</h1>
+    <p>This is a playground for interacting with the Scratch API.</p>
+    <div id="form">
+        <label for="request_params_1">Action:</label><br>
+        <select name="api_action" id="api_action">
+            <optgroup label="User">
+                <option value="follower_count">Get Follower Count</option>
+            </optgroup>
+            <option disabled>More will be added in the future.</option>
+        </select>
+        <br/>
+        <label for='request_params_2'>Arguments (newline- or comma-separated):</label><br>
+        <textarea id='request_params_2'></textarea>
+        <br/>
+        <button onclick="submitData()">Submit</button>
+    </div>
+    <p>Response:</p>
+    <textarea readonly placeholder="API response will appear here" id="response"></textarea>
+    <p>Powered by <a href="https://github.com/Freeboard/thingproxy">thingproxy</a> and <a href="https://expressjs.com">Express</a>.</p>
+    <p><a href="/privacy">Privacy Policy</a></p>
+
+    <script>
+        function getData() {
+            const action = document.getElementById('api_action').value
+            const params = document.getElementById('request_params_2').value.split('\n')
+
+            return {
+                action: action,
+                params: params
+            }
+        }
+
+        function handleParams() {
+            const data = getData()
+            let action = data.action
+            let params = data.params
+
+            if (action == 'follower_count') {
+                return params[0]
+            }
+        }
+
+        function getRequestData() {
+            // prepare the data for being sent in the request
+            const action = document.getElementById('api_action')
+            const params = handleParams()
+
+            return {
+                action: action,
+                params: params
+            }
+
+        }
+
+        async function submitData() {
+            const data = getRequestData()
+
+            document.getElementById('response').value = "Fetching data..."
+            const fetchData = await fetch('localhost:3001/' + data.action + '/' + data.params)
+                .then((response) => response.text())
+                .catch((err) => alert(err))
+            console.log(fetchData)
+            document.getElementById('response').value = fetchData
+            
+        }
+
+    </script>
+</body>
+</html>
